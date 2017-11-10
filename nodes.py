@@ -33,12 +33,11 @@ class User:
         self.accounts.increaseKey(idAccount)
     
     # To make a transaction between one of this user's accounts with another
-    def makeTransaction(self, idAccountO, idAccountD, qty):
-        # SUBSTITUTE WITH HASH TABLE FIND
-        self.accounts.increaseKey(idAccountO)
-        origin = self.accounts.findAccountObj(idAccountO)
-        destination = self.accounts.findAccountObj(idAccountD)
-        origin.addEdge(destination, qty)
+    def makeTransaction(self, accountO, accountD, qty):
+        result = accountO.addEdge(accountD, qty)
+        if result:
+            self.accounts.increaseKey(accountO.getId())
+        return result
 
     # To print al accounts
     def printAccounts(self):
@@ -62,16 +61,17 @@ class User:
 # Account class is an object of user which will be call by the main module
 # Accounts are stored in a hash table
 class Account:
-    def __init__(self, idAccount, userID, accType, balance = 0, frequency = 0):
+    def __init__(self, idAccount, userID, accType, balance = 0):
         self.idAccount = idAccount
         self.userID = userID
-        self.frequency = frequency
+        self.frequency = 0
         self.balance = balance
         self.accType = accType
         self.edges = minheap.EdgesMinHeap()
+        self.pointingAtMe = []
 
     def __str__(self):
-        return '{:<10s} {:<5s} {:<1s} {:>11s} {:<15}'.format(self.idAccount, self.accType, "$", str(self.balance) , "\tOwner: " + self.userID)
+        return '{:<10s} {:<5s} {:<1s} {:>11s} {:<15} {:<15}'.format(self.idAccount, self.accType, "$", str(self.balance) , "\tOwner: " + self.userID, "Frequency: " + str(self.frequency))
 
     def __hash__(self):
         return hash(self.idAccount)
@@ -81,26 +81,41 @@ class Account:
 
     # Add a transaction between the origin and destination
     def addEdge(self, dest, quantity):
-        #print(self.edges.getTotalEdges())
-        if self.edges.getTotalEdges() == 15:
-            self.edges.removeOldest()
+
         myEdge = self.edges.getEdge(dest)
+
         if self.accType == 'D' and self.balance-quantity < 0: # If operation can't be made because of debit with innuficient funds
             print("Not enough funds in account " + self.idAccount + " to transfer " + str(quantity) + " to " + dest.idAccount)
-            return
+            return False
+        elif dest.accType == 'C' and dest.userID != self.userID:
+            print("Can't transfer to a 3rd's credit account from " + self.idAccount + " to " + dest.idAccount + " the quantity " + str(quantity))
+            return False
         else:
+            removed = ()
+            if self.edges.getTotalEdges() == 15:
+                removed = self.edges.removeOldest()
+
             print("Transfering $" + str(quantity) + " from " + self.idAccount + " to " + dest.idAccount)
             self.balance -= quantity
             dest.balance += quantity
+
             if myEdge is not None: # Add to edge is exists
                 myEdge.add(quantity)
             else: # Create new edge
                 newEdge = Edge(dest, 0)
                 newEdge.add(quantity)
                 self.edges.insertEdge(newEdge)
-            return
-            
 
+            if removed:
+                t, m = removed
+                dest.pointingAtMe.remove([self, m])
+            dest.pointingAtMe.append([self, quantity])
+
+            return True
+    
+    def getEdgesList(self):
+        return self.edges.getHeapList
+            
 class Edge:
 
     def __init__(self, dest, uses = 0):
@@ -129,16 +144,15 @@ class Edge:
 
     # Remove money and time of the oldest transaction
     def removeO(self):
-        self.quses.dequeue()
-        self.money.dequeue()
         self.uses -= 1
+        return self.quses.dequeue(), self.money.dequeue()
 
     # To know if the size is empty
     def isEmpty(self):
         return self.uses == 0
     
     # To see top of queue
-    def seeOldest(self):
+    def seeOldestTime(self):
         return self.quses.first()
 
 class Queue:
@@ -162,10 +176,12 @@ class Queue:
         return self.queue
 
 if __name__ == "__main__":
+    '''
     print("TESTING METHODS\n")
     print("\nTESTING USERCREATION\n--------------------------------------------------------------------------------------")
     U1 = User("U1", "Miguel")
     print(U1)
+    U2 = User("U2", "Richie")
 
     print("\nTESTING ACCOUNT CREATION\n--------------------------------------------------------------------------------------")
     A1 = Account("A1", "U1", 'D', 1000)
@@ -186,7 +202,7 @@ if __name__ == "__main__":
     U1.printAccounts()
 
     print("\nTESTING MULTIPLE TRANSACTIONS\n--------------------------------------------------------------------------------------")
-    A3 = Account("A3", "U1", 'D', 1000000)
+    A3 = Account("A3", "U2", 'D', 1000000)
     U1.addAccount(A3)
     U1.printAccounts()
     U1.makeTransaction("A3", "A2",  1)
@@ -212,5 +228,7 @@ if __name__ == "__main__":
     print()
     U1.printAccounts()
     U1.printTransactions()
+    '''
+
 
 
