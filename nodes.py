@@ -1,9 +1,21 @@
 import time
 import maxheap
 import minheap
+import bankhash
+
+accountsHash = bankhash.BankHash()
+usersHash = bankhash.BankHash()
+
+def newUser(id, name):
+    u = User(id, name)
+    usersHash.put(u)
+    return u
+def deleteUser(id):
+    usersHash.delete(id)
 
 # User class is an object of user which will be call by the main module
 # Users are stored in a hash table
+
 class User:
     def __init__(self, idUser, name):
         self.idUser = idUser
@@ -22,6 +34,7 @@ class User:
 
     # Add an account into the accounts MaxHeap
     def addAccount(self, account):
+        accountsHash.put(account)
         self.accounts.insertAccount(account)
 
     # Remove an account that is in the MaxHeap
@@ -37,7 +50,7 @@ class User:
         # SUBSTITUTE WITH HASH TABLE FIND
         self.accounts.increaseKey(idAccountO)
         origin = self.accounts.findAccountObj(idAccountO)
-        destination = self.accounts.findAccountObj(idAccountD)
+        destination = accountsHash.get(idAccountD)
         origin.addEdge(destination, qty)
 
     # To print al accounts
@@ -166,6 +179,7 @@ if __name__ == "__main__":
     print("\nTESTING USERCREATION\n--------------------------------------------------------------------------------------")
     U1 = User("U1", "Miguel")
     print(U1)
+    U2 = User("U2", "Richie")
 
     print("\nTESTING ACCOUNT CREATION\n--------------------------------------------------------------------------------------")
     A1 = Account("A1", "U1", 'D', 1000)
@@ -186,7 +200,7 @@ if __name__ == "__main__":
     U1.printAccounts()
 
     print("\nTESTING MULTIPLE TRANSACTIONS\n--------------------------------------------------------------------------------------")
-    A3 = Account("A3", "U1", 'D', 1000000)
+    A3 = Account("A3", "U2", 'D', 1000000)
     U1.addAccount(A3)
     U1.printAccounts()
     U1.makeTransaction("A3", "A2",  1)
@@ -212,5 +226,6 @@ if __name__ == "__main__":
     print()
     U1.printAccounts()
     U1.printTransactions()
+
 
 
