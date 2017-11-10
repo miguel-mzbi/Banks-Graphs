@@ -1,5 +1,7 @@
 # TODO - FIX HASHTABLE
-
+#       - Remmove must return deleted value
+#       - Insert must resize before inserting. Double the size when the HT is 75% full
+#       - Add method to see if id exists
 class BankHash:
     def __init__(self):
         self.size = 25
@@ -8,15 +10,16 @@ class BankHash:
     def __str__(self):
         toPrint = ""
         for bucket in self.buckets:
-            toPrint += str(bucket) + "\n"
+            if bucket != None:
+                toPrint += str(bucket) + "\n"
         return toPrint
             
 
-    def put(self,value):
-        hashedkey = hash(value) % self.size
+    def put(self,item):
+        hashedkey = hash(item) % self.size
 
         if self.buckets[hashedkey] == None:
-            self.buckets[hashedkey] = value
+            self.buckets[hashedkey] = item
 
         ##elif self.buckets[hashedkey] == value:
         ##    self.values[hashedkey] = value
@@ -30,17 +33,17 @@ class BankHash:
                 hashedkey = (hashedkey + 1) % self.size
                 i+=1
             if self.buckets[hashedkey] == None:
-                self.buckets[hashedkey] = value
+                self.buckets[hashedkey] = item
 
 
 
-    def get(self, value):
-        start= hashedkey = hash(value) % self.size
+    def get(self, id):
+        start= hashedkey = hash(id) % self.size
         val = None
         done = False
 
         while not done:
-            if self.buckets[hashedkey].getId() == value:
+            if self.buckets[hashedkey].getId() == id:
                 val = self.buckets[hashedkey]
                 done = True
 
@@ -54,11 +57,11 @@ class BankHash:
 
         return val
 
-    def delete(self,key):
-        hashedkey = hash(key)% self.size
+    def delete(self,removedID):
+        hashedkey = hash(removedID)% self.size
         i = hashedkey
         prev = self.buckets[hashedkey]
-        while prev.getId() != key:
+        while prev.getId() != removedID:
             if prev != None:
                 i = (hashedkey + 1) % self.size
                 prev = self.buckets[i]
