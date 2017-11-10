@@ -1,4 +1,3 @@
-
 class AccountsMaxHeap():
     def __init__(self):
         self.heap = [None]

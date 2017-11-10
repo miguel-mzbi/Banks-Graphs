@@ -44,7 +44,7 @@ class EdgesMinHeap():
         self.heap.append(edge) # Insert at end of array
 
         # Fix min heap property if violated
-        while i != 1 and self.heap[self.parent(i)].seeOldest() > self.heap[i].seeOldest():
+        while i != 1 and self.heap[self.parent(i)].seeOldestTime() > self.heap[i].seeOldestTime():
             self.swap(self.parent(i), i)
             i = self.parent(i)
 
@@ -58,10 +58,10 @@ class EdgesMinHeap():
         smallestAccountIndex = i
 
         # If left is smaller
-        if left < self.size and self.heap[left].seeOldest() < self.heap[smallestAccountIndex].seeOldest():
+        if left < self.size and self.heap[left].seeOldestTime() < self.heap[smallestAccountIndex].seeOldestTime():
             smallestAccountIndex = left
         # If right is smaller
-        if right < self.size and self.heap[right].seeOldest() < self.heap[smallestAccountIndex].seeOldest():
+        if right < self.size and self.heap[right].seeOldestTime() < self.heap[smallestAccountIndex].seeOldestTime():
             smallestAccountIndex = right
         # If a smaller child was found
         if smallestAccountIndex != i:
@@ -107,7 +107,7 @@ class EdgesMinHeap():
     def removeOldest(self):
         
         toRemove = self.heap[1]
-        toRemove.removeO()
+        r = toRemove.removeO()
         if toRemove.isEmpty():
             self.heap[1] = self.heap[self.size]
             self.size -= 1
@@ -115,7 +115,7 @@ class EdgesMinHeap():
 
         self.minHeapify(1)
 
-        return
+        return r
 
     def getHeapList(self):
         return self.heap
