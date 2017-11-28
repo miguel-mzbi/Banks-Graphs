@@ -1,6 +1,6 @@
 import time
-import maxheap
-import minheap
+import MaxHeap
+import MinHeap
 
 # User class is an object of user which will be call by the main module
 # Users are stored in a hash table
@@ -8,7 +8,7 @@ class User:
     def __init__(self, idUser, name):
         self.idUser = idUser
         self.name = name
-        self.accounts = maxheap.AccountsMaxHeap()
+        self.accounts = MaxHeap.AccountsMaxHeap()
         # Stores all the accounts of the user in a MaxHeap, the order criteria is how many times an account is used
 
     def __str__(self):
@@ -67,7 +67,7 @@ class Account:
         self.frequency = 0
         self.balance = balance
         self.accType = accType
-        self.edges = minheap.EdgesMinHeap()
+        self.edges = MinHeap.EdgesMinHeap()
         self.pointingAtMe = []
 
     def __str__(self):

@@ -1,11 +1,11 @@
-import nodes
-import bankhash
+import Nodes
+import BankHash
 
-accountsHash = bankhash.BankHash()
-usersHash = bankhash.BankHash()
+accountsHash = BankHash.BankHash()
+usersHash = BankHash.BankHash()
 
 def newUser(id, name):
-    u = nodes.User(id, name)
+    u = Nodes.User(id, name)
     usersHash.put(u)
     return u
 
@@ -19,7 +19,7 @@ def getUser(id):
 
 def newAccount(id, userId, aType, balance):
     u = getUser(userId)
-    a = nodes.Account(id, userId, aType, balance)
+    a = Nodes.Account(id, userId, aType, balance)
     u.addAccount(a)
     accountsHash.put(a)
     return a
