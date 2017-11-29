@@ -1,6 +1,11 @@
 import Nodes
 import BankHash
+import GraphOperations
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import namedtuple
 
+Arc = namedtuple('Arc', ('tail', 'weight', 'head'))
 accountsHash = BankHash.BankHash()
 usersHash = BankHash.BankHash()
 
@@ -41,6 +46,31 @@ def makeTransaction(userID, accountID, destinationID, qty):
     result = u.makeTransaction(o, d, qty)
     return result
 
+def DFS(startID):
+    return GraphOperations.DephtFS(getAccount(startID))
+
+def BFS(startID):
+    return GraphOperations.BreadthFS(getAccount(startID))
+
+def getEdgesAsArcs(trueValues = False):
+    arcs = []
+    accounts = accountsHash.getAll()
+    for account in accounts:
+        edges = account.getEdgesListFull()
+        for edge in edges:
+            if trueValues:
+                arcs.append(Arc(account.idAccount, edge.uses, edge.dest.idAccount))
+            else:
+                arcs.append(Arc(account.idAccount, -edge.uses, edge.dest.idAccount))
+    return arcs
+
+def edmonds():
+    arcsResult = GraphOperations.edmonds(getEdgesAsArcs(), 'A1')
+    arcsToReturn = []
+    for i, arc in enumerate(arcsResult.values()):
+        arcsToReturn.append(Arc(arc.tail, -arc.weight, arc.head))
+    return arcsToReturn
+
 def printUsers():
     print(usersHash)
     return
@@ -49,7 +79,27 @@ def printAccounts():
     print(accountsHash)
     return
 
+def drawGraph():
+    import networkx as nx
+    from collections import Counter
+    arcs = getEdgesAsArcs(True)
 
+    plt.ion()
+
+    for i in range(10):
+        plt.clf()
+        arcs.append(Arc('A12', 10, 'A'+str(i)))
+        g = nx.DiGraph((x, y, {'weight': w}) for (x, w, y) in arcs)
+        pos = nx.spring_layout(g)
+        nx.draw_networkx_nodes(g, pos, cmap=plt.get_cmap('jet'), node_size = 500)
+        nx.draw_networkx_labels(g, pos)
+        nx.draw_networkx_edges(g, pos, arrows=True)
+        plt.pause(.5)
+
+    while True:
+        plt.pause(0.05)
+    
+    plt.show()
 
 def main():
     newUser("U1", "Miguel")
@@ -99,6 +149,8 @@ def main():
     makeTransaction("U1", "A3", "A2", 200)
     makeTransaction("U1", "A3", "A2", 300)
 
+    makeTransaction("U1", "A2", "A1", 1)
+
     print()
     printAccounts()
     U1.printAccounts()
@@ -106,6 +158,13 @@ def main():
     A2 = getAccount("A2")
     for o, m in A2.pointingAtMe:
         print(o.getId() + " " + str(m))
+
+    print()
+    print(DFS("A3"))
+    print(BFS("A3"))
+    print(edmonds())
+
+    drawGraph()
 
 if __name__ == '__main__':
     main()

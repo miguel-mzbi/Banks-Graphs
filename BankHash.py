@@ -3,6 +3,7 @@ class BankHash:
         self.capacity = 25
         self.buckets = [None] * self.capacity
         self.alpha = .75
+        self.size = 0
 
     def __str__(self):
         toPrint = ""
@@ -31,20 +32,20 @@ class BankHash:
 
         for i in range(len(self.buckets)):
             self.buckets[i] = None
-        for i in range(l):
-            self.buckets.append(None)
 
-        self.capacity += self.capacity
+        self.capacity += l
+        self.buckets = [None] * self.capacity
+        
         for element in temp:
             self.put(element)
 
     def put(self, item):
-        if len(self.buckets)/self.capacity >= self.alpha:
+        if self.size/self.capacity >= self.alpha:
             self.resize()
 
         hashedkey = hash(item) % self.capacity
 
-        if self.buckets[hashedkey] == None:
+        if self.buckets[hashedkey] is None:
             self.buckets[hashedkey] = item
 
         else:
@@ -55,6 +56,7 @@ class BankHash:
                 i += 1
             if self.buckets[hashedkey] is None:
                 self.buckets[hashedkey] = item
+                self.size += 1
 
     def get(self, id):
         start = hashedkey = hash(id) % self.capacity
@@ -71,6 +73,9 @@ class BankHash:
                 if hashedkey == start or self.buckets[hashedkey] is None:
                     done = True
         return val
+
+    def getAll(self):
+        return [item for item in self.buckets if item is not None]
 
     def delete(self,removedID):
         hashedkey = hash(removedID)% self.capacity
@@ -96,6 +101,3 @@ class BankHash:
 
     def __getitem__(self,key):
         return self.get(key)
-
-    def __setitem__(self,key,val):
-        self.put(key,val)

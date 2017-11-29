@@ -114,7 +114,10 @@ class Account:
             return True
     
     def getEdgesList(self):
-        return self.edges.getHeapList
+        return [edge.dest for edge in self.edges.getHeapList() if edge is not None]
+
+    def getEdgesListFull(self):
+        return [edge for edge in self.edges.getHeapList() if edge is not None]
             
 class Edge:
 
