@@ -4,10 +4,23 @@ import GraphOperations
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import namedtuple
+import networkx as nx
 
 Arc = namedtuple('Arc', ('tail', 'weight', 'head'))
 accountsHash = BankHash.BankHash()
 usersHash = BankHash.BankHash()
+
+def getEdgesAsArcs(trueValues = False):
+    arcs = []
+    accounts = accountsHash.getAll()
+    for account in accounts:
+        edges = account.getEdgesListFull()
+        for edge in edges:
+            if trueValues:
+                arcs.append(Arc(account.idAccount, edge.uses, edge.dest.idAccount))
+            else:
+                arcs.append(Arc(account.idAccount, -edge.uses, edge.dest.idAccount))
+    return arcs
 
 def newUser(id, name):
     u = Nodes.User(id, name)
@@ -52,18 +65,6 @@ def DFS(startID):
 def BFS(startID):
     return GraphOperations.BreadthFS(getAccount(startID))
 
-def getEdgesAsArcs(trueValues = False):
-    arcs = []
-    accounts = accountsHash.getAll()
-    for account in accounts:
-        edges = account.getEdgesListFull()
-        for edge in edges:
-            if trueValues:
-                arcs.append(Arc(account.idAccount, edge.uses, edge.dest.idAccount))
-            else:
-                arcs.append(Arc(account.idAccount, -edge.uses, edge.dest.idAccount))
-    return arcs
-
 def edmonds():
     arcsResult = GraphOperations.edmonds(getEdgesAsArcs(), 'A1')
     arcsToReturn = []
@@ -79,26 +80,17 @@ def printAccounts():
     print(accountsHash)
     return
 
-def drawGraph():
-    import networkx as nx
-    from collections import Counter
+def updateGraph(i):
     arcs = getEdgesAsArcs(True)
-
     plt.ion()
-
-    for i in range(10):
-        plt.clf()
-        arcs.append(Arc('A12', 10, 'A'+str(i)))
-        g = nx.DiGraph((x, y, {'weight': w}) for (x, w, y) in arcs)
-        pos = nx.spring_layout(g)
-        nx.draw_networkx_nodes(g, pos, cmap=plt.get_cmap('jet'), node_size = 500)
-        nx.draw_networkx_labels(g, pos)
-        nx.draw_networkx_edges(g, pos, arrows=True)
-        plt.pause(.5)
-
-    while True:
-        plt.pause(0.05)
-    
+    plt.clf()
+    arcs.append(Arc('A12', 10, 'A'+str(i)))
+    g = nx.DiGraph((x, y, {'weight': w}) for (x, w, y) in arcs)
+    pos = nx.spring_layout(g)
+    nx.draw_networkx_nodes(g, pos, cmap=plt.get_cmap('jet'), node_size = 500)
+    nx.draw_networkx_labels(g, pos)
+    nx.draw_networkx_edges(g, pos, arrows=True)
+    plt.pause(.5)    
     plt.show()
 
 def main():
@@ -164,7 +156,14 @@ def main():
     print(BFS("A3"))
     print(edmonds())
 
-    drawGraph()
+    updateGraph(100)
+    updateGraph(800)
+    updateGraph(400)
+    updateGraph(999)
+
+    while True:
+        plt.pause(0.5)
+    
 
 if __name__ == '__main__':
     main()
