@@ -38,6 +38,12 @@ class User:
         if result:
             self.accounts.increaseKey(accountO.getId())
         return result
+    
+    def getOrderedAccounts(self):
+        accs = self.accounts.getHeapList()
+        accs = [x.getId() for x in accs if x is not None]
+        accs = sorted(accs, key = lambda x: int(x[1:]))
+        return accs
 
     # To print al accounts
     def printAccounts(self):
@@ -71,7 +77,7 @@ class Account:
         self.pointingAtMe = []
 
     def __str__(self):
-        return '{:<10s} {:<5s} {:<1s} {:>11s} {:<15} {:<15}'.format(self.idAccount, self.accType, "$", str(self.balance) , "\tOwner: " + self.userID, "Frequency: " + str(self.frequency))
+        return '{:<10s} {:<5c} {:<1s} {:>11s} {:<15} {:<15}'.format(self.idAccount, self.accType, "$", str(self.balance) , "\tOwner: " + self.userID, "Frequency: " + str(self.frequency))
 
     def __hash__(self):
         return hash(self.idAccount)

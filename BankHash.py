@@ -27,13 +27,15 @@ class BankHash:
         return val
 
     def resize(self):
+        import copy
         l = len(self.buckets)//2
-        temp = self.buckets
+        temp = copy.deepcopy(self.buckets)
 
         for i in range(len(self.buckets)):
             self.buckets[i] = None
 
-        self.capacity += l
+        self.capacity += len(self.buckets) + l
+        self.size = 0
         self.buckets = [None] * self.capacity
         
         for element in temp:
@@ -47,6 +49,7 @@ class BankHash:
 
         if self.buckets[hashedkey] is None:
             self.buckets[hashedkey] = item
+            self.size += 1
 
         else:
             hashedkey = (hashedkey + 1) % self.capacity
@@ -64,7 +67,7 @@ class BankHash:
         done = False
 
         while not done:
-            if self.buckets[hashedkey].getId() == id:
+            if self.buckets[hashedkey] is not None and self.buckets[hashedkey].getId() == id:
                 val = self.buckets[hashedkey]
                 done = True
 
@@ -76,6 +79,15 @@ class BankHash:
 
     def getAll(self):
         return [item for item in self.buckets if item is not None]
+
+    def getRandomItem(self):
+        import numpy as np
+        i = 0
+        while True:
+            num = int(np.random.uniform(0, self.capacity))
+            if self.buckets[num] is not None:
+                return self.buckets[num]
+
 
     def delete(self,removedID):
         hashedkey = hash(removedID)% self.capacity

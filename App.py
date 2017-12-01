@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import namedtuple
 import networkx as nx
+import names
 
 Arc = namedtuple('Arc', ('tail', 'weight', 'head'))
 accountsHash = BankHash.BankHash()
@@ -35,6 +36,9 @@ def getUser(id):
     u = usersHash.get(id)
     return u
 
+def getUserRandom():
+    return usersHash.getRandomItem()
+
 def newAccount(id, userId, aType, balance):
     u = getUser(userId)
     a = Nodes.Account(id, userId, aType, balance)
@@ -51,6 +55,9 @@ def deleteAccount(id):
 def getAccount(id):
     a = accountsHash.get(id)
     return a
+
+def getAccountRandom():
+    return accountsHash.getRandomItem()
 
 def makeTransaction(userID, accountID, destinationID, qty):
     u = getUser(userID)
@@ -80,20 +87,47 @@ def printAccounts():
     print(accountsHash)
     return
 
-def updateGraph(i):
+def updateGraph():
     arcs = getEdgesAsArcs(True)
     plt.ion()
     plt.clf()
-    arcs.append(Arc('A12', 10, 'A'+str(i)))
     g = nx.DiGraph((x, y, {'weight': w}) for (x, w, y) in arcs)
     pos = nx.spring_layout(g)
     nx.draw_networkx_nodes(g, pos, cmap=plt.get_cmap('jet'), node_size = 500)
-    nx.draw_networkx_labels(g, pos)
+    nx.draw_networkx_labels(g, pos, font_size=8)
     nx.draw_networkx_edges(g, pos, arrows=True)
-    plt.pause(.5)    
+    
+    plt.pause(.1)    
     plt.show()
 
+def numberToType(n):
+    switcher = {
+        0: 'C',
+        1: 'D'
+    }
+    return switcher.get(n)
+
+def getRandomUniformInt(end, start = 0):
+    return int(np.random.uniform(start, end))
+
+def getRandomNormalAccount(user):
+    accs = user.getOrderedAccounts()
+    mean = (len(accs)-1)//2
+    stddev = len(accs) / 6
+    while True:
+        i = int(np.random.normal(mean, stddev))
+        if 0 <= i < len(accs):
+            return accs[i]
+
+def getUsersNum():
+    return usersHash.size
+
+def getAccsNum():
+    return accountsHash.size
+    
 def main():
+
+    '''
     newUser("U1", "Miguel")
     U1 = getUser("U1")
     print(str(U1) + "\n")
@@ -155,11 +189,75 @@ def main():
     print(DFS("A3"))
     print(BFS("A3"))
     print(edmonds())
+    '''
+    forced = 0
+    while True:
+        if forced == 0:
+            tOperation = getRandomUniformInt(15)
+        elif forced == 1:
+            tOperation = 13
+        elif forced == 2:
+            tOperation = 8
+            
+        if tOperation >= 13: # Make new user
+            forced = 0
+            print("New User")
+            uNum = getRandomUniformInt(1000000)
+            while True:
+                if getUser("U"+str(uNum)) is None:
+                    newUser("U"+str(uNum), names.get_full_name())
+                    break
+                else:
+                    uNum = getRandomUniformInt(1000000)
+        elif tOperation >= 8: # Make new acount
+            if getUsersNum() < 1:
+                print("New Account Impossible. Users: " + str(getUsersNum()))
+                forced = 1
+                continue
+            else:
+                forced = 0
+            
+            print("New Account")
+            aNum = getRandomUniformInt(1000000000)
+            while True:
+                if getAccount("A"+str(aNum)) is None:
+                    aType = numberToType(getRandomUniformInt(2))
+                    if aType == 'D':
+                        aAmount = getRandomUniformInt(100000)
+                    else:
+                        aAmount = 0
+                    newAccount("A"+str(aNum), getUserRandom().getId(), aType, aAmount)
+                    break
+                else:
+                    aNum = getRandomUniformInt(1000000000)
+        else: # Make new transaction
+            if getUsersNum() < 2:
+                print("New Transaction Impossible. Users: " + str(getUsersNum()))
+                forced = 1
+                continue
+            elif getAccsNum() < 2:
+                print("New Transaction Impossible. Accs: " + str(getAccsNum()))
+                forced = 2
+                continue
+            else:
+                forced = 0
 
-    updateGraph(100)
-    updateGraph(800)
-    updateGraph(400)
-    updateGraph(999)
+            print("New Transaction")
+            
+            user = getUserRandom()
+            while True:
+                if len(user.accounts) > 0:
+                    break
+                else:
+                    user = getUserRandom()
+            accOrigin = getRandomNormalAccount(user)
+            accDest = getAccountRandom().getId()
+            while accOrigin == accDest:
+                accDest = getAccountRandom().getId()
+            amount = getRandomUniformInt(getAccount(accOrigin).balance, 1) if getAccount(accOrigin).accType == 'D' else getRandomUniformInt(10000, 1)
+            makeTransaction(user.getId(), accOrigin, accDest, amount)
+        
+        updateGraph()
 
     while True:
         plt.pause(0.5)
