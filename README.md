@@ -11,7 +11,7 @@ Nowadays, it is normal that people are connected between each other by any means
 - Insertion of new users that do not have an account.
 - Insertion of cashiers inside an account in name of the Bank that counts as an user.
 - Delete any kind of account such as a cashier or an user account.
-- Search for a user's accounts and for a speci c account.
+- Search for a user's accounts and for a specific account.
 - Insertion of relationships between accounts such as deposit, withdraw, transfer from a user account and deposit or withdraw from a cashier.
 - Delete relationships between accounts.
 
