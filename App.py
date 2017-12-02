@@ -24,7 +24,8 @@ usersHash = BankHash.BankHash()
 def newUser(uId, name):
     '''
     Creates a new user. It's added to the user's hashtable.
-    Complexity: O(U)
+    Worst-Case: O(U)
+    Average-Case: θ(1)
     '''
     user = Nodes.User(uId, name)
     usersHash.put(user)
@@ -33,7 +34,8 @@ def newUser(uId, name):
 def deleteUser(uId):
     '''
     Deletes an user in the user's hashtable.
-    Complexity: O(U)
+    Worst-Case: O(U)
+    Average-Case: θ(1)
     '''
     user = usersHash.delete(uId)
     return user
@@ -41,28 +43,34 @@ def deleteUser(uId):
 def getUser(uId):
     '''
     Searches an user in the user's hashtable.
-    Complexity: O(U)
+    Worst-Case: O(U)
+    Average-Case: θ(1)
     '''
     return usersHash.get(uId)
 
 def getUserRandom():
     '''
     Gets a random user from the hashtable.
-    Complexity: O(U)
+    Worst-Case: O(U)
+    Average-Case: θ(1)
     '''
     return usersHash.getRandomItem()
 
 def getUsersNum():
     '''
+    UTILITY
     Gets user's hashtable size
-    Complexity: O(1)
+    Worst-Case: O(1)
+    Average-Case: θ(1)
     '''
     return usersHash.size
 
 def printUsers():
     '''
+    UTILITY
     Prints all the existing users with data
-    Complexity: O(U)
+    Worst-Case: O(U)
+    Average-Case: θ(U)
     '''
     print(usersHash)
     return
@@ -72,7 +80,8 @@ def newAccount(aId, userId, aType, balance):
     Creates a new account. It's added to the account's hashtable.
     First it searches the user object to assign this new account.
     Then the account is added to the user's maxheap.
-    Complexity: O(U + A + log(A))
+    Worst-Case: O(U + A + log(A))
+    Average-Case: θ(1)
     '''
     user = getUser(userId)
     account = Nodes.Account(aId, userId, aType, balance)
@@ -85,7 +94,8 @@ def deleteAccount(aId):
     Deletes an account. It's it's removed from account's hashtable.
     First it searches the user object to delete this account.
     Then the account is removed from the user's maxheap.
-    Complexity: O(U + A + log(A))
+    Worst-Case: O(U + A + log(A))
+    Average-Case: θ(1 + log(A))
     '''
     account = accountsHash.delete(aId)
     user = getUser(account.userID)
@@ -95,28 +105,33 @@ def deleteAccount(aId):
 def getAccount(aId):
     '''
     Searches an account in the account's hashtable.
-    Complexity: O(A)
+    Worst-Case: O(A)
+    Average-Case: θ(1)
     '''
     return accountsHash.get(aId)
 
 def getAccountRandom():
     '''
     Gets a random account from the hashtable.
-    Complexity: O(A)
+    Worst-Case: O(A)
+    Average-Case: θ(1)
     '''
     return accountsHash.getRandomItem()
 
 def getAccsNum():
     '''
     Gets user's hashtable size
-    Complexity: O(1)
+    Worst-Case: O(1)
+    Average-Case: θ(1)
     '''
     return accountsHash.size
 
 def printAccounts():
     '''
+    UTILITY
     Prints all the existing accounts with data
-    Complexity: O(A)
+    Worst-Case: O(A)
+    Average-Case: θ(A)
     '''
     print(accountsHash)
     return
@@ -127,7 +142,8 @@ def makeTransaction(userID, accountID, destinationID, qty):
     First it searches the user that is making the transaction in the user's hashtable.
     Then it searches both the origin and destination account in the account's hashtable.
     Finally it makes the transaction (Increasing the keay in the heap).
-    Complexity: O(U + 2A + log(A))
+    Worst-Case: O(U + 2A + log(A))
+    Average-Case: θ(1)
     '''
     user = getUser(userID)
     origin = getAccount(accountID)
@@ -137,14 +153,16 @@ def makeTransaction(userID, accountID, destinationID, qty):
 def DFS(startID):
     '''
     Returns the DFS of the graph. It first searches the the account in the hashtable.
-    Complexity: O(2A + T)
+    Worst-Case: O(2A + T)
+    Average-Case: θ(1 + A + T)
     '''
     return GraphOperations.DephtFS(getAccount(startID))
 
 def BFS(startID):
     '''
     Returns the BFS of the graph. It first searches the the account in the hashtable.
-    Complexity: O(2A + T)
+    Worst-Case: O(2A + T)
+    Average-Case: θ(1 + A + T)
     '''
     return GraphOperations.BreadthFS(getAccount(startID))
 
@@ -152,7 +170,9 @@ def edmonds():
     '''
     Returns the maximum spanning tree of the graph.
     It uses the minimum spanning tree's logic, but with the negated weights, to obtain the maximum.
-    Complexity: O(A + A^2 + T)
+    Complexity: 
+    Worst-Case: O(A + A^2 + T)
+    Average-Case: θ(A + A^2 + T)
     '''
     arcsResult = GraphOperations.edmonds(getEdgesAsArcs(), 'A1')
     arcsToReturn = []
@@ -162,10 +182,12 @@ def edmonds():
 
 def getEdgesAsArcs(trueValues=False):
     '''
+    UTILITY
     Function that obtains all of the edges in the graph
     It's used to draw the graph.
     Uses arcs tuplet
-    Complexity: O(A + T)
+    Worst-Case: O(A + T)
+    Average-Case: θ(A + T)
     '''
     arcs = []
     accounts = accountsHash.getAll()
@@ -196,8 +218,10 @@ def updateGraph():
 
 def numberToType(n):
     '''
+    UTILITY
     Swich-type-dictionary
     Complexity: O(1)
+    Average-Case: θ(1)
     '''
     switcher = {
         0: 'C',
@@ -207,6 +231,7 @@ def numberToType(n):
 
 def getRandomUniformInt(end, start = 0):
     '''
+    UTILITY
     Generates a random int using a uniform distribution
     Complexity: O(1)
     '''
@@ -214,6 +239,7 @@ def getRandomUniformInt(end, start = 0):
 
 def getRandomNormalAccount(user):
     '''
+    UTILITY
     Gets a random account of an user, using a normal distribution.
     Complexity: O(alpha)
     '''
