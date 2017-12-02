@@ -25,3 +25,19 @@ Through the elaboration of the project, the following algorithms & Data Structur
 - Queue
 > In order to keep track of the 15 most recent relations an account had. When a movement happens from an account into another, that movement is enqueued, so that a relation between both accounts involved is stored. If the queue is already full, the oldest movement is dequeued in order to enqueue the most recent one. 
 
+### __Complexities__
+
+With the description of the algorithms implemented in the software, the following complexities are given when running it:
+
+Action | Average Case | Worst Case
+:---:|:----:|:----:
+Create New User | θ(1) | O(U)
+Search User | θ(1) | O(U)
+Delete User | θ(1) | O(U)
+Create New Account | θ(1) | O(U+A+log(A))
+Search Account | θ(1) | O(A)
+Delete Account | θ(1+log(A)) | O(U+A+log(A))
+Make Transaction | θ(1) | O(U+2A+log(A))
+Search Transaction(DFS) | θ(1+A+T) | O(2A+T)
+Search Transaction(BFS) | θ(1+A+T) | O(2A+T)
+Edmond's | θ(A+A^2+T) | O(A+A^2+T)
