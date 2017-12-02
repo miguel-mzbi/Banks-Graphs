@@ -1,17 +1,170 @@
-import Nodes
+'''
+App.py is the main module of the project. It contains all of the basic functions.
+It also contains the demo and random generator to see the evolution.
+In complexities: A = Accounts, T = Transactions, U = Users
+'''
+
+from collections import namedtuple
+
+import matplotlib.pyplot as plt
+import names
+import networkx as nx
+import numpy as np
+
 import BankHash
 import GraphOperations
-import numpy as np
-import matplotlib.pyplot as plt
-from collections import namedtuple
-import networkx as nx
-import names
+import Nodes
 
 Arc = namedtuple('Arc', ('tail', 'weight', 'head'))
 accountsHash = BankHash.BankHash()
 usersHash = BankHash.BankHash()
 
-def getEdgesAsArcs(trueValues = False):
+def newUser(uId, name):
+    '''
+    Creates a new user. It's added to the user's hashtable.
+    Complexity: O(U)
+    '''
+    user = Nodes.User(uId, name)
+    usersHash.put(user)
+    return user
+
+def deleteUser(uId):
+    '''
+    Deletes an user in the user's hashtable.
+    Complexity: O(U)
+    '''
+    user = usersHash.delete(uId)
+    return user
+
+def getUser(uId):
+    '''
+    Searches an user in the user's hashtable.
+    Complexity: O(U)
+    '''
+    return usersHash.get(uId)
+
+def getUserRandom():
+    '''
+    Gets a random user from the hashtable.
+    Complexity: O(U)
+    '''
+    return usersHash.getRandomItem()
+
+def getUsersNum():
+    '''
+    Gets user's hashtable size
+    Complexity: O(1)
+    '''
+    return usersHash.size
+
+def printUsers():
+    '''
+    Prints all the existing users with data
+    Complexity: O(U)
+    '''
+    print(usersHash)
+    return
+
+def newAccount(aId, userId, aType, balance):
+    '''
+    Creates a new account. It's added to the account's hashtable.
+    First it searches the user object to assign this new account.
+    Then the account is added to the user's maxheap.
+    Complexity: O(U + A + log(A))
+    '''
+    user = getUser(userId)
+    account = Nodes.Account(aId, userId, aType, balance)
+    user.addAccount(account)
+    accountsHash.put(account)
+    return account
+
+def deleteAccount(aId):
+    '''
+    Deletes an account. It's it's removed from account's hashtable.
+    First it searches the user object to delete this account.
+    Then the account is removed from the user's maxheap.
+    Complexity: O(U + A + log(A))
+    '''
+    account = accountsHash.delete(aId)
+    user = getUser(account.userID)
+    user.removeAccount(account)
+    return account
+
+def getAccount(aId):
+    '''
+    Searches an account in the account's hashtable.
+    Complexity: O(A)
+    '''
+    return accountsHash.get(aId)
+
+def getAccountRandom():
+    '''
+    Gets a random account from the hashtable.
+    Complexity: O(A)
+    '''
+    return accountsHash.getRandomItem()
+
+def getAccsNum():
+    '''
+    Gets user's hashtable size
+    Complexity: O(1)
+    '''
+    return accountsHash.size
+
+def printAccounts():
+    '''
+    Prints all the existing accounts with data
+    Complexity: O(A)
+    '''
+    print(accountsHash)
+    return
+
+def makeTransaction(userID, accountID, destinationID, qty):
+    '''
+    Makes a new transaction beetween accounts.
+    First it searches the user that is making the transaction in the user's hashtable.
+    Then it searches both the origin and destination account in the account's hashtable.
+    Finally it makes the transaction (Increasing the keay in the heap).
+    Complexity: O(U + 2A + log(A))
+    '''
+    user = getUser(userID)
+    origin = getAccount(accountID)
+    destiny = getAccount(destinationID)
+    return user.makeTransaction(origin, destiny, qty)
+
+def DFS(startID):
+    '''
+    Returns the DFS of the graph. It first searches the the account in the hashtable.
+    Complexity: O(2A + T)
+    '''
+    return GraphOperations.DephtFS(getAccount(startID))
+
+def BFS(startID):
+    '''
+    Returns the BFS of the graph. It first searches the the account in the hashtable.
+    Complexity: O(2A + T)
+    '''
+    return GraphOperations.BreadthFS(getAccount(startID))
+
+def edmonds():
+    '''
+    Returns the maximum spanning tree of the graph.
+    It uses the minimum spanning tree's logic, but with the negated weights, to obtain the maximum.
+    Complexity: O(A + A^2 + T)
+    '''
+    arcsResult = GraphOperations.edmonds(getEdgesAsArcs(), 'A1')
+    arcsToReturn = []
+    for i, arc in enumerate(arcsResult.values()):
+        arcsToReturn.append(Arc(arc.tail, -arc.weight, arc.head))
+    return arcsToReturn
+
+def getEdgesAsArcs(trueValues=False):
+    '''
+    Function that obtains all of the edges in the graph
+    It's used to draw the graph.
+    Uses arcs tuplet
+    Complexity: O(A + T)
+    '''
     arcs = []
     accounts = accountsHash.getAll()
     for account in accounts:
@@ -23,84 +176,27 @@ def getEdgesAsArcs(trueValues = False):
                 arcs.append(Arc(account.idAccount, -edge.uses, edge.dest.idAccount))
     return arcs
 
-def newUser(id, name):
-    u = Nodes.User(id, name)
-    usersHash.put(u)
-    return u
-
-def deleteUser(id):
-    u = usersHash.delete(id)
-    return u
-
-def getUser(id):
-    u = usersHash.get(id)
-    return u
-
-def getUserRandom():
-    return usersHash.getRandomItem()
-
-def newAccount(id, userId, aType, balance):
-    u = getUser(userId)
-    a = Nodes.Account(id, userId, aType, balance)
-    u.addAccount(a)
-    accountsHash.put(a)
-    return a
-
-def deleteAccount(id):
-    a = accountsHash.delete(id)
-    u = getUser(a.userID)
-    u.removeAccount(a)
-    return a
-
-def getAccount(id):
-    a = accountsHash.get(id)
-    return a
-
-def getAccountRandom():
-    return accountsHash.getRandomItem()
-
-def makeTransaction(userID, accountID, destinationID, qty):
-    u = getUser(userID)
-    o = getAccount(accountID)
-    d = getAccount(destinationID)
-    result = u.makeTransaction(o, d, qty)
-    return result
-
-def DFS(startID):
-    return GraphOperations.DephtFS(getAccount(startID))
-
-def BFS(startID):
-    return GraphOperations.BreadthFS(getAccount(startID))
-
-def edmonds():
-    arcsResult = GraphOperations.edmonds(getEdgesAsArcs(), 'A1')
-    arcsToReturn = []
-    for i, arc in enumerate(arcsResult.values()):
-        arcsToReturn.append(Arc(arc.tail, -arc.weight, arc.head))
-    return arcsToReturn
-
-def printUsers():
-    print(usersHash)
-    return
-
-def printAccounts():
-    print(accountsHash)
-    return
-
 def updateGraph():
+    '''
+    Plots the graph
+    '''
     arcs = getEdgesAsArcs(True)
     plt.ion()
     plt.clf()
     g = nx.DiGraph((x, y, {'weight': w}) for (x, w, y) in arcs)
     pos = nx.spring_layout(g)
-    nx.draw_networkx_nodes(g, pos, cmap=plt.get_cmap('jet'), node_size = 500)
+    nx.draw_networkx_nodes(g, pos, cmap=plt.get_cmap('jet'), node_size=500)
     nx.draw_networkx_labels(g, pos, font_size=8)
     nx.draw_networkx_edges(g, pos, arrows=True)
-    
-    plt.pause(.1)    
+    plt.pause(.5)
     plt.show()
+    return
 
 def numberToType(n):
+    '''
+    Swich-type-dictionary
+    Complexity: O(1)
+    '''
     switcher = {
         0: 'C',
         1: 'D'
@@ -108,9 +204,17 @@ def numberToType(n):
     return switcher.get(n)
 
 def getRandomUniformInt(end, start = 0):
+    '''
+    Generates a random int using a uniform distribution
+    Complexity: O(1)
+    '''
     return int(np.random.uniform(start, end))
 
 def getRandomNormalAccount(user):
+    '''
+    Gets a random account of an user, using a normal distribution.
+    Complexity: O(alpha)
+    '''
     accs = user.getOrderedAccounts()
     mean = (len(accs)-1)//2
     stddev = len(accs) / 6
@@ -118,13 +222,8 @@ def getRandomNormalAccount(user):
         i = int(np.random.normal(mean, stddev))
         if 0 <= i < len(accs):
             return accs[i]
+    return
 
-def getUsersNum():
-    return usersHash.size
-
-def getAccsNum():
-    return accountsHash.size
-    
 def main():
 
     '''
@@ -194,9 +293,9 @@ def main():
     while True:
         if forced == 0:
             tOperation = getRandomUniformInt(15)
-        elif forced == 1:
+        elif forced == 1: # Forced to create user
             tOperation = 13
-        elif forced == 2:
+        elif forced == 2: # Forced to create account
             tOperation = 8
             
         if tOperation >= 13: # Make new user
@@ -243,7 +342,7 @@ def main():
                 forced = 0
 
             print("New Transaction")
-            
+
             user = getUserRandom()
             while True:
                 if len(user.accounts) > 0:
@@ -256,13 +355,11 @@ def main():
                 accDest = getAccountRandom().getId()
             amount = getRandomUniformInt(getAccount(accOrigin).balance, 1) if getAccount(accOrigin).accType == 'D' else getRandomUniformInt(10000, 1)
             makeTransaction(user.getId(), accOrigin, accDest, amount)
-        
+
         updateGraph()
 
     while True:
         plt.pause(0.5)
-    
 
 if __name__ == '__main__':
     main()
-

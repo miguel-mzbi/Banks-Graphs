@@ -1,5 +1,14 @@
+'''
+Utility operations for the graph operations
+'''
+
+from collections import defaultdict
 
 def DephtFS(start):
+    '''
+    Does a DFS.
+    Complexity: O(A + T)
+    '''
     visited = []
     stack = [start]
     while stack:
@@ -12,6 +21,10 @@ def DephtFS(start):
     return visited
 
 def BreadthFS(start):
+    '''
+    Does a BFS.
+    Complexity: O(A + T)
+    '''
     visited = []
     queue = [start]
     while queue:
@@ -23,16 +36,19 @@ def BreadthFS(start):
             queue.extend([item for item in edges if item not in visited])
     return visited
 
-
-from collections import defaultdict
-
 def edmonds(arcs, sink):
+    '''
+    Does a MST of a directed graph using Edmond's algorithm.
+    Complexity: O(A^2 + T)
+    '''
     goodArcs = []
     quotientMap = {arc.tail: arc.tail for arc in arcs}
     quotientMap[sink] = sink
+
     while True:
         minArcByTailRep = {}
         successorRep = {}
+
         for arc in arcs:
             if arc.tail == sink:
                 continue
@@ -43,10 +59,13 @@ def edmonds(arcs, sink):
             if tailRep not in minArcByTailRep or minArcByTailRep[tailRep].weight > arc.weight:
                 minArcByTailRep[tailRep] = arc
                 successorRep[tailRep] = headRep
+
         cycleReps = findCycle(successorRep, sink)
+
         if cycleReps is None:
             goodArcs.extend(minArcByTailRep.values())
             return spanningArborescence(goodArcs, sink)
+
         goodArcs.extend(minArcByTailRep[cycle_rep] for cycle_rep in cycleReps)
         cycleRepSet = set(cycleReps)
         cycle_rep = cycleRepSet.pop()
@@ -54,6 +73,9 @@ def edmonds(arcs, sink):
 
 
 def findCycle(successor, sink):
+    '''
+    Finds cycles
+    '''
     visited = {sink}
     for node in successor:
         cycle = []
@@ -63,24 +85,29 @@ def findCycle(successor, sink):
             node = successor[node]
         if node in cycle:
             return cycle[cycle.index(node):]
+
     return None
 
 
 def spanningArborescence(arcs, sink):
+    '''
+    Arborescence
+    '''
     arcsByHead = defaultdict(list)
+
     for arc in arcs:
         if arc.tail == sink:
             continue
         arcsByHead[arc.head].append(arc)
+
     solutionArcByTail = {}
     stack = arcsByHead[sink]
+
     while stack:
         arc = stack.pop()
         if arc.tail in solutionArcByTail:
             continue
         solutionArcByTail[arc.tail] = arc
         stack.extend(arcsByHead[arc.tail])
+
     return solutionArcByTail
-
-
-#print(min_spanning_arborescence([Arc(1, 17, 0), Arc(2, 16, 0), Arc(3, 19, 0), Arc(4, 16, 0), Arc(5, 16, 0), Arc(6, 18, 0), Arc(2, 3, 1), Arc(3, 3, 1), Arc(4, 11, 1), Arc(5, 10, 1), Arc(6, 12, 1), Arc(1, 3, 2), Arc(3, 4, 2), Arc(4, 8, 2), Arc(5, 8, 2), Arc(6, 11, 2), Arc(1, 3, 3), Arc(2, 4, 3), Arc(4, 12, 3), Arc(5, 11, 3), Arc(6, 14, 3), Arc(1, 11, 4), Arc(2, 8, 4), Arc(3, 12, 4), Arc(5, 6, 4), Arc(6, 10, 4), Arc(1, 10, 5), Arc(2, 8, 5), Arc(3, 11, 5), Arc(4, 6, 5), Arc(6, 4, 5), Arc(1, 12, 6), Arc(2, 11, 6), Arc(3, 14, 6), Arc(4, 10, 6), Arc(5, 4, 6)], 0))
