@@ -1,4 +1,4 @@
-##<center> __Algorithms Project__ </center> 
+##__Algorithms Project__
 Miguel Montoya
 Luis Vargas
 Ricardo Palma
