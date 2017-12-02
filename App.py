@@ -2,6 +2,8 @@
 App.py is the main module of the project. It contains all of the basic functions.
 It also contains the demo and random generator to see the evolution.
 In complexities: A = Accounts, T = Transactions, U = Users
+Consider that usually T could be considered as a constant. Because in most algorithms,
+except in the related to graph operations, T is max 15.
 '''
 
 from collections import namedtuple
